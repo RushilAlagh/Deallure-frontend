@@ -1,6 +1,8 @@
 const docClient = require("../config/dynamoConfig");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const TABLE_NAME = "User_Products"; 
+const SECRET_KEY = "your-secret-key"; 
 
 const signupUser = async ({ name, email, password }) => {
     if (!name || !email || !password) {
@@ -39,6 +41,35 @@ const signupUser = async ({ name, email, password }) => {
     }
   };
   
+const loginUser = async ({ email, password }) => {
+    if (!email || !password) {
+      throw new Error("Email and password are required");
+    }
   
+    try {
+      // Fetch the user from the database
+      const user = await docClient
+        .get({ TableName: TABLE_NAME, Key: { userEmail: email, productId: "USER" } })
+        .promise();
+  
+      if (!user.Item) {
+        throw new Error("User not registered. Please sign up.");
+      }
+  
+      // Compare provided password with stored hashed password
+      const isPasswordValid = await bcrypt.compare(password, user.Item.password);
+      if (!isPasswordValid) {
+        throw new Error("Incorrect password. Please try again.");
+      }
+  
+      // Generate a JWT token
+      const token = jwt.sign({ email: user.Item.userEmail }, SECRET_KEY, { expiresIn: "1h" });
+  
+      return { message: "Login successful", token };
+    } catch (error) {
+      console.error("Login Error:", error.message);
+      throw error;
+    }
+  };
 
-module.exports = { signupUser };
+module.exports = { signupUser, loginUser };

@@ -1,8 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import googleLogo from "../../assets/google-logo.png"; // Ensure this image is in `src/assets/`
+import googleLogo from "../../assets/google-logo.png"; // Ensure this image is in src/assets/
 
 function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:3000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Invalid login credentials");
+      }
+
+      // Store user session in local storage
+      localStorage.setItem("userEmail", email);
+
+      alert("Login successful!");
+      window.location.href = "/"; 
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center h-screen w-screen bg-[#1a1a2e] text-white">
       <motion.div 
@@ -13,12 +43,16 @@ function Login() {
       >
         <h1 className="text-2xl font-semibold mb-5">Login to your account</h1>
 
-        <form className="flex flex-col items-center w-full">
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+        <form className="flex flex-col items-center w-full" onSubmit={handleLogin}>
           <label className="text-left w-full text-sm text-gray-300 mb-1">Email address</label>
           <motion.input 
             type="email" 
             placeholder="Enter your email" 
             required 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full p-3 mb-4 border border-[#575fcf] rounded-md bg-[#33334d] text-white text-lg focus:outline-none focus:border-[#6c5ce7]"
             whileFocus={{ scale: 1.02, borderColor: "#70a1ff" }}
           />
@@ -28,6 +62,8 @@ function Login() {
             type="password" 
             placeholder="Enter your password" 
             required 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full p-3 mb-4 border border-[#575fcf] rounded-md bg-[#33334d] text-white text-lg focus:outline-none focus:border-[#6c5ce7]"
             whileFocus={{ scale: 1.02, borderColor: "#70a1ff" }}
           />
