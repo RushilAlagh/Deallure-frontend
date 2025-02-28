@@ -11,6 +11,10 @@ const Signup = () => {
     confirmPassword: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -18,15 +22,62 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
+  
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+  
+    setLoading(true);
+    setError("");
+    setMessage("");
+  
+    try {
+      const response = await fetch("http://localhost:3000/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+  
+      const data = await response.json();
+      if (!response.ok) {
+        if (data.error === "Email already registered") {
+          throw new Error("Email already registered. Please use a different email.");
+        } else {
+          throw new Error(data.error || "Signup failed");
+        }
+      }
+  
+      setMessage("Signup successful! Redirecting...");
+      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+      
+      setTimeout(() => {
+        window.location.href = "/login"; // Redirect to login page
+      }, 2000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#1a1a2e] text-white font-['Poppins']">
       <div className="w-full max-w-md p-8 bg-[#2c2c54] rounded-lg text-center shadow-lg relative">
         <h2 className="text-2xl font-semibold mb-5">Sign Up</h2>
+
+        {message && <p className="text-green-400">{message}</p>}
+        {error && <p className="text-red-500">{error}</p>}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {[
             { label: "Name", name: "name", type: "text", placeholder: "Enter your name" },
@@ -60,8 +111,12 @@ const Signup = () => {
             </div>
           ))}
 
-          <button type="submit" className="w-full py-3 mt-3 bg-indigo-600 text-white font-semibold rounded-md transition duration-200 hover:bg-indigo-500">
-            Sign Up
+          <button
+            type="submit"
+            className="w-full py-3 mt-3 bg-indigo-600 text-white font-semibold rounded-md transition duration-200 hover:bg-indigo-500 disabled:bg-gray-500"
+            disabled={loading}
+          >
+            {loading ? "Signing up..." : "Sign Up"}
           </button>
         </form>
 
