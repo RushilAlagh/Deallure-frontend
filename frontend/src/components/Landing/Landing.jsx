@@ -30,10 +30,11 @@ const Landing = () => {
 
       {/* Shifted text even further down using pt-40 */}
       <div className="mt-20 pt-40"> 
-        <h1 className="text-4xl font-bold mb-3">Track Product Prices in Real-Time</h1>
-        {/* Keeping the reduced gap between text and carousel */}
-        <p className="text-lg text-purple-400 mb-4">Stay ahead of price drops and get the best deals.</p>
-      </div>
+  <h1 className="text-4xl font-bold mb-3 pt-10">Track Product Prices in Real-Time</h1>
+  {/* Keeping the reduced gap between text and carousel */}
+  <p className="text-lg text-purple-400 mb-4">Stay ahead of price drops and get the best deals.</p>
+</div>
+
 
       {/* Semi-Circular Carousel Section */}
       <div className="mt-4">
