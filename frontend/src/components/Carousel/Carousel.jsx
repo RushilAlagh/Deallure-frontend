@@ -4,10 +4,10 @@ import { motion } from "framer-motion";
 // Using the asset paths from your system
 const brandImages = [
   "/src/assets/Ajio.png",
-  "/src/assets/amazon.jpg",
-  "/src/assets/flipkart.jpg",
-  "/src/assets/nykaa.png",
-  "/src/assets/nike.jpg",
+  "/src/assets/Amazon.jpg",
+  "/src/assets/Flipkart.jpg",
+  "/src/assets/Nykaa.png",
+  "/src/assets/Nike.jpg",
 ];
 
 const InfiniteCarousel = () => {
