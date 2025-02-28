@@ -29,7 +29,7 @@ function Login() {
         </div>
 
         <p className="login-footer-text">
-          New here? <a href="#" className="login-signup-link">Create an account</a>
+          New here? <a href="/signup" className="login-signup-link">Create an account</a>
         </p>
       </div>
     </div>
