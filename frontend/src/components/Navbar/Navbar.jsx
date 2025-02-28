@@ -1,30 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import logo from "../../assets/Deallure.png"; // Adjust path if necessary
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // Check login state when component mounts
-  useEffect(() => {
-    const userEmail = localStorage.getItem("userEmail");
-    setIsLoggedIn(!!userEmail); // Convert to boolean
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("userEmail"); // ✅ Remove user email from localStorage
-    setIsLoggedIn(false);
-    
-    // ✅ Clear entire localStorage (optional, if you store other user-related data)
-    // localStorage.clear(); 
-
-    window.location.href = "/"; // Redirect to landing page
-  };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-black shadow-md shadow-purple-500/10 z-50 flex justify-between items-center py-4 px-8">
-      <div className="text-xl font-bold text-purple-400">Deallure</div>
+    <nav className="fixed top-0 left-0 w-full bg-black shadow-md shadow-purple-500/10 z-50 flex justify-between items-center py-4 px-8 h-16"> 
+      {/* Left Logo Image */}
+      <div className="flex items-center">
+        <img 
+          src={logo}  
+          alt="Deallure Logo"
+          className="h-31 max-h-full w-auto object-contain" // Larger logo without increasing navbar height
+        />
+      </div>
 
       {/* Navbar Items (Centered) */}
       <ul className="flex gap-8 flex-grow justify-center">
@@ -51,6 +42,7 @@ const Navbar = () => {
                 to="/home"
                 className="flex items-center px-4 py-2 hover:bg-purple-600 transition text-center whitespace-nowrap"
               >
+                {/* White Professional Icon */}
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/3502/3502512.png"
                   alt="Track Product"
@@ -89,29 +81,18 @@ const Navbar = () => {
         </li>
       </ul>
 
-      {/* Login/Logout Buttons (Right-Aligned) */}
+      {/* Login/Signup Buttons (Right-Aligned) */}
       <div className="flex gap-4 ml-auto">
-        {isLoggedIn ? (
-          <button
-            onClick={handleLogout}
-            className="bg-purple-500 border border-purple-500 text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-white hover:text-purple-500"
-          >
-            Logout
+        <Link to="/login">
+          <button className="border border-white text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-purple-500 hover:border-purple-500">
+            Login
           </button>
-        ) : (
-          <>
-            <Link to="/login">
-              <button className="border border-white text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-purple-500 hover:border-purple-500">
-                Login
-              </button>
-            </Link>
-            <Link to="/signup">
-              <button className="bg-purple-500 border border-purple-500 text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-white hover:text-purple-500">
-                Signup
-              </button>
-            </Link>
-          </>
-        )}
+        </Link>
+        <Link to="/signup">
+          <button className="bg-purple-500 border border-purple-500 text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-white hover:text-purple-500">
+            Signup
+          </button>
+        </Link>
       </div>
     </nav>
   );
