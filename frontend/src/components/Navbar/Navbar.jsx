@@ -5,21 +5,23 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 w-full bg-black shadow-md shadow-purple-500/10 z-50 flex justify-between items-center py-4 px-8">
       <div className="text-xl font-bold text-purple-400">Deallure</div>
 
-      <ul className="flex gap-8 flex-grow justify-center">
-        <li className="relative group">
+      {/* ✅ Centered Navbar Links */}
+      <ul className="flex gap-8 flex-grow justify-center items-center">
+        <li className="relative group flex items-center justify-center">
           <a href="#" className="text-white text-lg transition-colors duration-300 hover:text-purple-400">
             Features
           </a>
-          <span className="hidden group-hover:flex items-center justify-center absolute top-full left-1/2 transform -translate-x-1/2 bg-white/10 text-white px-8 py-2 min-w-[280px] rounded-lg text-sm font-semibold shadow-md shadow-purple-500/30 backdrop-blur-md border border-white/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          {/* ✅ Fixed Width & Prevented Overflow */}
+          <span className="hidden group-hover:block absolute top-full left-1/2 transform -translate-x-1/2 w-72 break-words text-center bg-white/10 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md shadow-purple-500/30 backdrop-blur-md border border-white/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
             🚀 Exciting features coming soon!
             <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 border-8 border-transparent border-b-white/10"></span>
           </span>
         </li>
-        <li className="relative group">
+        <li className="relative group flex items-center justify-center">
           <a href="#" className="text-white text-lg transition-colors duration-300 hover:text-purple-400">
             Subscriptions
           </a>
-          <span className="hidden group-hover:flex items-center justify-center absolute top-full left-1/2 transform -translate-x-1/2 bg-white/10 text-white px-8 py-2 min-w-[280px] rounded-lg text-sm font-semibold shadow-md shadow-purple-500/30 backdrop-blur-md border border-white/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <span className="hidden group-hover:block absolute top-full left-1/2 transform -translate-x-1/2 w-72 break-words text-center bg-white/10 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md shadow-purple-500/30 backdrop-blur-md border border-white/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
             ✨ Stay tuned for updates!
             <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 border-8 border-transparent border-b-white/10"></span>
           </span>
