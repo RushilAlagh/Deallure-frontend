@@ -6,11 +6,48 @@ const Home = () => {
   const [productLink, setProductLink] = useState("");
   const [priceThreshold, setPriceThreshold] = useState("");
   const [timeoutPeriod, setTimeoutPeriod] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Tracking product:", { productLink, priceThreshold, timeoutPeriod });
+  
+    const userEmail = localStorage.getItem("userEmail");
+  
+    if (!userEmail) {
+      setError("User not logged in. Please log in first.");
+      return;
+    }
+  
+    try {
+      const response = await fetch("http://localhost:3000/products/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: userEmail,
+          productLink,
+          priceThreshold,
+          timeoutPeriod,
+        }),
+      });
+  
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to store product tracking details");
+      }
+  
+      setMessage("✅ Product details stored successfully! Tracking is underway.");
+      alert("✅ Product details stored successfully! Tracking is underway.");
+  
+      // Reset input fields
+      setProductLink("");
+      setPriceThreshold("");
+      setTimeoutPeriod("");
+    } catch (err) {
+      setError(err.message);
+    }
   };
+  
 
   return (
     <motion.div
