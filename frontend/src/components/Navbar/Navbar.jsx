@@ -1,25 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import logo from "../../assets/Deallure.png"; // Adjust path if necessary
+import logo from "/src/assets/Deallure.png";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const userEmail = localStorage.getItem("userEmail");
+    setIsLoggedIn(!!userEmail);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("userEmail");
+    setIsLoggedIn(false);
+    window.location.href = "/";
+  };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-black shadow-md shadow-purple-500/10 z-50 flex justify-between items-center py-4 px-8 h-16"> 
-      {/* Left Logo Image */}
-      <div className="flex items-center">
+    <nav className="fixed top-0 left-0 w-full bg-black shadow-md shadow-purple-500/10 z-50 flex justify-between items-center py-4 px-8">
+      {/* Logo */}
+      <Link to="/">
         <img 
           src={logo}  
           alt="Deallure Logo"
-          className="h-31 max-h-full w-auto object-contain" // Larger logo without increasing navbar height
+          className="h-12 w-auto object-contain"
         />
-      </div>
+      </Link>
 
       {/* Navbar Items (Centered) */}
       <ul className="flex gap-8 flex-grow justify-center">
-        {/* Features Dropdown */}
         <li
           className="relative group"
           onMouseEnter={() => setIsDropdownOpen(true)}
@@ -28,8 +39,6 @@ const Navbar = () => {
           <span className="text-white text-lg transition-colors duration-300 hover:text-purple-400 cursor-pointer">
             Features
           </span>
-
-          {/* Animated Dropdown */}
           {isDropdownOpen && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -42,7 +51,6 @@ const Navbar = () => {
                 to="/home"
                 className="flex items-center px-4 py-2 hover:bg-purple-600 transition text-center whitespace-nowrap"
               >
-                {/* White Professional Icon */}
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/3502/3502512.png"
                   alt="Track Product"
@@ -56,8 +64,6 @@ const Navbar = () => {
             </motion.div>
           )}
         </li>
-
-        {/* Subscriptions with Expanded Alert Box */}
         <li className="relative group">
           <a href="#" className="text-white text-lg transition-colors duration-300 hover:text-purple-400">
             Subscriptions
@@ -73,7 +79,6 @@ const Navbar = () => {
             <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 border-8 border-transparent border-b-white/10"></span>
           </motion.span>
         </li>
-
         <li>
           <a href="#about-me" className="text-white text-lg transition-colors duration-300 hover:text-purple-400">
             About Us
@@ -81,18 +86,29 @@ const Navbar = () => {
         </li>
       </ul>
 
-      {/* Login/Signup Buttons (Right-Aligned) */}
+      {/* Login/Logout Buttons (Right-Aligned) */}
       <div className="flex gap-4 ml-auto">
-        <Link to="/login">
-          <button className="border border-white text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-purple-500 hover:border-purple-500">
-            Login
+        {isLoggedIn ? (
+          <button
+            onClick={handleLogout}
+            className="bg-purple-500 border border-purple-500 text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-white hover:text-purple-500"
+          >
+            Logout
           </button>
-        </Link>
-        <Link to="/signup">
-          <button className="bg-purple-500 border border-purple-500 text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-white hover:text-purple-500">
-            Signup
-          </button>
-        </Link>
+        ) : (
+          <>
+            <Link to="/login">
+              <button className="border border-white text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-purple-500 hover:border-purple-500">
+                Login
+              </button>
+            </Link>
+            <Link to="/signup">
+              <button className="bg-purple-500 border border-purple-500 text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-white hover:text-purple-500">
+                Signup
+              </button>
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );
