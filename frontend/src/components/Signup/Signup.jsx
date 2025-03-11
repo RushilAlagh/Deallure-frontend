@@ -68,79 +68,169 @@ const Signup = () => {
       setLoading(false);
     }
   };
-  
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#1a1a2e] text-white font-['Poppins']">
-      <div className="w-full max-w-md p-8 bg-[#2c2c54] rounded-lg text-center shadow-lg relative">
-        <h2 className="text-2xl font-semibold mb-5">Sign Up</h2>
+    <div className="flex justify-center items-center min-h-screen w-full bg-gradient-to-br from-indigo-900 via-purple-800 to-indigo-700 text-white px-4 py-8 sm:px-6 md:px-8">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-white"
+              initial={{ 
+                x: Math.random() * 100, 
+                y: Math.random() * 100,
+                opacity: Math.random() * 0.5 + 0.3,
+                scale: Math.random() * 0.8 + 0.2
+              }}
+              animate={{ 
+                x: [null, Math.random() * window.innerWidth], 
+                y: [null, Math.random() * window.innerHeight] 
+              }}
+              transition={{ 
+                duration: Math.random() * 20 + 10, 
+                repeat: Infinity, 
+                repeatType: "reverse" 
+              }}
+              style={{
+                width: `${Math.random() * 10 + 5}px`,
+                height: `${Math.random() * 10 + 5}px`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
 
-        {message && <p className="text-green-400">{message}</p>}
-        {error && <p className="text-red-500">{error}</p>}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-md p-4 sm:p-6 md:p-8 bg-black/20 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10"
+      >
+        <motion.div
+          initial={{ y: -10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="text-center mb-4 sm:mb-6"
+        >
+          <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-purple-300">Create Account</h1>
+          <p className="text-sm sm:text-base text-white/60 mt-2">Join us and start your journey</p>
+        </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-2 sm:p-3 mb-4 sm:mb-6 rounded-lg bg-green-500/20 border border-green-500/40"
+          >
+            <p className="text-green-300 text-xs sm:text-sm">{message}</p>
+          </motion.div>
+        )}
+
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-2 sm:p-3 mb-4 sm:mb-6 rounded-lg bg-red-500/20 border border-red-500/40"
+          >
+            <p className="text-red-300 text-xs sm:text-sm">{error}</p>
+          </motion.div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           {[
-            { label: "Name", name: "name", type: "text", placeholder: "Enter your name" },
-            { label: "Email", name: "email", type: "email", placeholder: "Enter your email" },
-            { label: "Password", name: "password", type: "password", placeholder: "Enter your password" },
-            { label: "Confirm Password", name: "confirmPassword", type: "password", placeholder: "Confirm your password" },
+            { label: "Full Name", name: "name", type: "text", placeholder: "John Doe" },
+            { label: "Email Address", name: "email", type: "email", placeholder: "name@example.com" },
+            { label: "Password", name: "password", type: "password", placeholder: "••••••••" },
+            { label: "Confirm Password", name: "confirmPassword", type: "password", placeholder: "••••••••" },
           ].map((input, index) => (
-            <div className="relative text-left" key={index}>
-              <label htmlFor={input.name} className="block text-sm text-gray-300">{input.label}</label>
-              <div className="relative w-full">
+            <motion.div 
+              className="space-y-1"
+              key={index}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 + index * 0.1 }}
+            >
+              <label htmlFor={input.name} className="text-xs sm:text-sm font-medium text-white/70 block text-left">{input.label}</label>
+              <div className="relative">
                 <input
                   type={input.type}
                   id={input.name}
                   name={input.name}
-                  className="w-full px-4 py-3 mt-1 border border-indigo-600 rounded-md bg-[#2c2c54] text-white focus:outline-none focus:border-indigo-500 relative z-10"
+                  className="w-full p-2 sm:p-3 rounded-lg bg-white/5 border border-white/10 text-white text-sm sm:text-base placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all"
                   placeholder={input.placeholder}
                   value={formData[input.name]}
                   onChange={handleChange}
                   required
                 />
-                <motion.div
-                  className="absolute inset-0 w-full h-full rounded-md"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 1, 0], x: [-50, 50] }}
-                  transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-                  style={{
-                    background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent)",
-                  }}
-                />
               </div>
-            </div>
+            </motion.div>
           ))}
 
-          <button
+          <motion.button
             type="submit"
-            className="w-full py-3 mt-3 bg-indigo-600 text-white font-semibold rounded-md transition duration-200 hover:bg-indigo-500 disabled:bg-gray-500"
+            className="w-full p-3 sm:p-4 mt-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium text-sm sm:text-base transition-all hover:shadow-lg hover:shadow-blue-500/20"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
             disabled={loading}
           >
-            {loading ? "Signing up..." : "Sign Up"}
-          </button>
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="text-xs sm:text-sm">Creating your account...</span>
+              </div>
+            ) : (
+              "Create Account"
+            )}
+          </motion.button>
         </form>
 
-        <p className="mt-4 text-sm text-gray-300">or continue with</p>
-        
-        {/* Social Signup Buttons */}
-        <div className="flex justify-center gap-4 mt-3 w-full">
-          <button className="flex items-center justify-center w-1/3 px-3 py-2 bg-white text-gray-900 rounded-md font-semibold transition hover:bg-gray-200 text-xs">
-            <img src={googleLogo} alt="Google Logo" className="w-10 h-10 mr-1" />
-            Google
-          </button>
-          <button className="flex items-center justify-center w-1/3 px-3 py-2 bg-white text-gray-900 rounded-md font-semibold transition hover:bg-gray-200 text-xs">
-            <img src={githubLogo} alt="GitHub Logo" className="w-10 h-10 mr-1" />
-            GitHub
-          </button>
+        <div className="my-4 sm:my-6 flex items-center">
+          <div className="flex-grow h-px bg-white/10"></div>
+          <span className="px-3 text-xs text-white/40 font-medium">OR CONTINUE WITH</span>
+          <div className="flex-grow h-px bg-white/10"></div>
         </div>
 
-        <p className="mt-4 text-sm text-gray-300">
-          Already have an account?{" "}
-          <a href="/login" className="text-indigo-500 font-semibold hover:underline">
-            Login
-          </a>
-        </p>
-      </div>
+        <div className="flex space-x-2 sm:space-x-4">
+          <motion.button
+            className="flex items-center justify-center flex-1 p-2 sm:p-3 bg-white/5 border border-white/10 text-white rounded-lg transition-all hover:bg-white/10"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <img src={googleLogo} alt="Google Logo" className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Google</span>
+          </motion.button>
+          <motion.button
+            className="flex items-center justify-center flex-1 p-2 sm:p-3 bg-white/5 border border-white/10 text-white rounded-lg transition-all hover:bg-white/10"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+          >
+            <img src={githubLogo} alt="GitHub Logo" className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">GitHub</span>
+          </motion.button>
+        </div>
+
+        <motion.p 
+          className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-white/60"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+        >
+          Already have an account? <a href="/login" className="text-blue-300 font-medium hover:underline">Sign in</a>
+        </motion.p>
+      </motion.div>
     </div>
   );
 };
