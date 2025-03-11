@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import logo from "/src/assets/Deallure.png";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail");
     setIsLoggedIn(!!userEmail);
+
+    const handleScroll = () => {
+      const offset = window.scrollY;
+      if (offset > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -18,98 +33,343 @@ const Navbar = () => {
     window.location.href = "/";
   };
 
-  return (
-    <nav className="fixed top-0 left-0 w-full bg-black shadow-md shadow-purple-500/10 z-50 flex justify-between items-center py-4 px-8">
-      {/* Logo */}
-      <Link to="/">
-        <img 
-          src={logo}  
-          alt="Deallure Logo"
-          className="h-12 w-auto object-contain"
+  // SVG Logo component with responsive sizing
+  const DeallureLogo = ({ className = "" }) => (
+    <svg className={`h-8 md:h-10 w-auto ${className}`} viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#8b5cf6" />
+          <stop offset="100%" stopColor="#ec4899" />
+        </linearGradient>
+        
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#8b5cf6" floodOpacity="0.5"/>
+        </filter>
+      </defs>
+      
+      {/* Price tag icon */}
+      <g filter="url(#shadow)">
+        <path 
+          d="M60 25a25 25 0 100 50 25 25 0 000-50zm0 45a20 20 0 110-40 20 20 0 010 40z" 
+          fill="url(#logoGradient)"
         />
-      </Link>
+        
+        {/* Dollar sign */}
+        <path 
+          d="M60 35v4a8 8 0 00-6 13.5A8 8 0 0060 65v4M60 35a8 8 0 018 8 8 8 0 01-8 8M60 35v16M60 45v5"
+          stroke="url(#logoGradient)"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        
+        {/* Downward arrow for price drop */}
+        <path 
+          d="M90 35l-5 10 5 10" 
+          stroke="url(#logoGradient)" 
+          strokeWidth="3" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+        />
+        
+        {/* Notification bell */}
+        <path 
+          d="M35 40a5 5 0 00-5 5v5l-5 5v2.5h30V55l-5-5v-5a5 5 0 00-5-5" 
+          stroke="url(#logoGradient)"
+          strokeWidth="2.5"
+          fill="none"
+        />
+        <path 
+          d="M40 60v2.5a5 5 0 01-10 0V60" 
+          stroke="url(#logoGradient)"
+          strokeWidth="2.5"
+          fill="none"
+        />
+      </g>
+      
+      {/* Text - visible on larger screens via CSS */}
+      <g className="logo-text">
+        <text x="105" y="60" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="30" fill="url(#logoGradient)" filter="url(#shadow)">Deallure</text>
+        <text x="105" y="75" fontFamily="Arial, sans-serif" fontSize="12" fill="#a78bfa">Price Tracker</text>
+      </g>
+    </svg>
+  );
 
-      {/* Navbar Items (Centered) */}
-      <ul className="flex gap-8 flex-grow justify-center">
-        <li
-          className="relative group"
-          onMouseEnter={() => setIsDropdownOpen(true)}
-          onMouseLeave={() => setIsDropdownOpen(false)}
-        >
-          <span className="text-white text-lg transition-colors duration-300 hover:text-purple-400 cursor-pointer">
-            Features
-          </span>
-          {isDropdownOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="absolute top-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white w-56 rounded-lg shadow-lg shadow-purple-500/30 py-2 border border-white/20"
-            >
-              <Link
-                to="/home"
-                className="flex items-center px-4 py-2 hover:bg-purple-600 transition text-center whitespace-nowrap"
+  // Small logo for mobile devices
+  const DeallureSmallLogo = ({ className = "" }) => (
+    <svg className={`h-8 w-auto ${className}`} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="smallLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#8b5cf6" />
+          <stop offset="100%" stopColor="#ec4899" />
+        </linearGradient>
+        
+        <filter id="smallShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#8b5cf6" floodOpacity="0.5"/>
+        </filter>
+      </defs>
+      
+      {/* Price tag icon */}
+      <g filter="url(#smallShadow)">
+        <path 
+          d="M50 25a25 25 0 100 50 25 25 0 000-50zm0 45a20 20 0 110-40 20 20 0 010 40z" 
+          fill="url(#smallLogoGradient)"
+        />
+        
+        {/* Dollar sign */}
+        <path 
+          d="M50 35v4a8 8 0 00-6 13.5A8 8 0 0050 65v4M50 35a8 8 0 018 8 8 8 0 01-8 8M50 35v16M50 45v5"
+          stroke="url(#smallLogoGradient)"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        
+        {/* Downward arrow */}
+        <path 
+          d="M75 40l-5 10 5 10" 
+          stroke="url(#smallLogoGradient)" 
+          strokeWidth="3" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+        />
+        
+        {/* Notification bell */}
+        <path 
+          d="M25 40a5 5 0 00-5 5v5l-5 5v2.5h30V55l-5-5v-5a5 5 0 00-5-5" 
+          stroke="url(#smallLogoGradient)"
+          strokeWidth="2.5"
+          fill="none"
+        />
+        <path 
+          d="M30 60v2.5a5 5 0 01-10 0V60" 
+          stroke="url(#smallLogoGradient)"
+          strokeWidth="2.5"
+          fill="none"
+        />
+      </g>
+    </svg>
+  );
+
+  return (
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+      scrolled 
+        ? "bg-gray-900/95 backdrop-blur-md shadow-lg shadow-purple-500/10" 
+        : "bg-transparent"
+    }`}>
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+        <div className="flex justify-between items-center h-16 md:h-20">
+          {/* Logo - Different versions for different screen sizes */}
+          <div className="flex-shrink-0 flex items-center">
+            <Link to="/" className="flex items-center">
+              {/* Full logo for medium screens and up */}
+              <span className="hidden md:block">
+                <DeallureLogo />
+              </span>
+              {/* Small logo for small screens */}
+              <span className="block md:hidden">
+                <DeallureSmallLogo />
+              </span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation - Centered */}
+          <div className="hidden md:block flex-grow mx-4">
+            <div className="flex justify-center items-center space-x-4 lg:space-x-8">
+              <div
+                className="relative"
+                onMouseEnter={() => setIsDropdownOpen(true)}
+                onMouseLeave={() => setIsDropdownOpen(false)}
               >
-                <img
-                  src="https://cdn-icons-png.flaticon.com/512/3502/3502512.png"
-                  alt="Track Product"
-                  className="w-5 h-5 object-contain filter invert mr-2"
-                />
-                Track Your Product
-              </Link>
-              <div className="px-4 py-2 text-sm text-purple-300 text-center">
-                More features coming soon...
+                <button className="text-purple-200 hover:text-purple-400 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors duration-300 flex items-center">
+                  Features
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <AnimatePresence>
+                  {isDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute left-0 mt-2 w-56 rounded-lg shadow-lg bg-gray-800/90 backdrop-blur-md ring-1 ring-purple-500/20 border border-purple-500/30 z-50"
+                    >
+                      <div className="py-1">
+                        <Link
+                          to="/home"
+                          className="flex items-center px-4 py-2 text-sm text-purple-200 hover:bg-purple-600/50 hover:text-white transition-colors duration-150 rounded-md mx-1"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" />
+                          </svg>
+                          Track Your Product
+                        </Link>
+                        <div className="px-4 py-2 text-xs text-purple-300 border-t border-gray-700/50 mt-1">
+                          More features coming soon...
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </motion.div>
-          )}
-        </li>
-        <li className="relative group">
-          <a href="#" className="text-white text-lg transition-colors duration-300 hover:text-purple-400">
-            Subscriptions
-          </a>
-          <motion.span
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="hidden group-hover:flex absolute top-full left-1/2 transform -translate-x-1/2 w-64 bg-white/10 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md shadow-purple-500/30 backdrop-blur-md border border-white/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 text-center"
-          >
-            Stay tuned for exciting updates! 🚀
-            <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 border-8 border-transparent border-b-white/10"></span>
-          </motion.span>
-        </li>
-        <li>
-          <a href="#about-me" className="text-white text-lg transition-colors duration-300 hover:text-purple-400">
-            About Us
-          </a>
-        </li>
-      </ul>
 
-      {/* Login/Logout Buttons (Right-Aligned) */}
-      <div className="flex gap-4 ml-auto">
-        {isLoggedIn ? (
-          <button
-            onClick={handleLogout}
-            className="bg-purple-500 border border-purple-500 text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-white hover:text-purple-500"
-          >
-            Logout
-          </button>
-        ) : (
-          <>
-            <Link to="/login">
-              <button className="border border-white text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-purple-500 hover:border-purple-500">
-                Login
+              <Link to="/pricing" className="text-purple-200 hover:text-purple-400 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors duration-300">
+                Subscriptions
+              </Link>
+              
+              <Link to="/testimonials" className="text-purple-200 hover:text-purple-400 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors duration-300">
+                Testimonials
+              </Link>
+              
+              <a href="#about-me" className="text-purple-200 hover:text-purple-400 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors duration-300">
+                About Us
+              </a>
+              
+              <Link to="/contact" className="text-purple-200 hover:text-purple-400 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors duration-300">
+                Contact
+              </Link>
+            </div>
+          </div>
+
+          {/* Auth Buttons - Now positioned at extreme right */}
+          <div className="hidden md:flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-3 lg:px-5 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+              >
+                Logout
               </button>
-            </Link>
-            <Link to="/signup">
-              <button className="bg-purple-500 border border-purple-500 text-white px-4 py-2 rounded-md transition-all duration-300 hover:bg-white hover:text-purple-500">
-                Signup
-              </button>
-            </Link>
-          </>
-        )}
+            ) : (
+              <>
+                <Link to="/login">
+                  <button className="text-purple-200 hover:text-purple-400 px-3 lg:px-4 py-1.5 lg:py-2 text-xs lg:text-sm font-medium transition-colors duration-300">
+                    Login
+                  </button>
+                </Link>
+                <Link to="/signup">
+                  <button className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-3 lg:px-5 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                    Sign Up
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="flex md:hidden">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-purple-300 hover:text-white hover:bg-purple-600/20 focus:outline-none"
+              aria-expanded="false"
+            >
+              <span className="sr-only">Open main menu</span>
+              {!isMobileMenuOpen ? (
+                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              ) : (
+                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Mobile menu, show/hide based on menu state */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="md:hidden bg-gray-900/95 backdrop-blur-md border-t border-purple-500/20"
+          >
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              <div className="relative">
+                <button 
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="text-purple-200 hover:bg-purple-600/20 hover:text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left flex justify-between items-center"
+                >
+                  Features
+                  <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <AnimatePresence>
+                  {isDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="pl-4 py-2 space-y-1"
+                    >
+                      <Link
+                        to="/home"
+                        className="flex items-center px-3 py-2 text-sm text-purple-200 hover:bg-purple-600/20 hover:text-white rounded-md"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" />
+                        </svg>
+                        Track Your Product
+                      </Link>
+                      <div className="px-3 py-2 text-xs text-purple-400">
+                        More features coming soon...
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              
+              <Link to="/pricing" className="text-purple-200 hover:bg-purple-600/20 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                Subscriptions
+              </Link>
+              
+              <Link to="/testimonials" className="text-purple-200 hover:bg-purple-600/20 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                Testimonials
+              </Link>
+              
+              <a href="#about-me" className="text-purple-200 hover:bg-purple-600/20 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                About Us
+              </a>
+              
+              <Link to="/contact" className="text-purple-200 hover:bg-purple-600/20 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                Contact
+              </Link>
+            </div>
+            
+            <div className="pt-4 pb-3 border-t border-gray-700">
+              <div className="flex items-center px-5">
+                {isLoggedIn ? (
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex justify-center bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20"
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <div className="w-full space-y-2">
+                    <Link to="/login" className="w-full block">
+                      <button className="w-full text-center border border-purple-500 text-purple-200 px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:bg-purple-600/20">
+                        Login
+                      </button>
+                    </Link>
+                    <Link to="/signup" className="w-full block">
+                      <button className="w-full text-center bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20">
+                        Sign Up
+                      </button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };
