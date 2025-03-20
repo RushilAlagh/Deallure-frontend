@@ -257,26 +257,31 @@ const Home = () => {
               <div className="space-y-1 md:space-y-2">
                 <label className="block text-base md:text-lg font-medium text-purple-300">Product URL</label>
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
+                <div className="flex items-center">
+                    <div className="flex-shrink-0 mr-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>
+                    </div>
+                    <input
+                      type="url"
+                      required
+                      value={productLink}
+                      onChange={(e) => setProductLink(e.target.value)}
+                      placeholder="https://example.com/product"
+                      className="w-full p-3 md:p-4 rounded-lg bg-gray-800/80 border border-purple-700/50 text-white placeholder-purple-400/70 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 group-hover:border-purple-500/70 text-sm md:text-base"
+                    />
                   </div>
-                  <input
-                    type="url"
-                    required
-                    value={productLink}
-                    onChange={(e) => setProductLink(e.target.value)}
-                    placeholder="https://example.com/product"
-                    className="w-full pl-10 p-3 md:p-4 rounded-lg bg-gray-800/80 border border-purple-700/50 text-white placeholder-purple-400/70 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 group-hover:border-purple-500/70 text-sm md:text-base"
-                  />
-                  <motion.span 
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-300/70 text-xs hidden md:block"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: productLink ? 0 : 0.7 }}
-                  >
-                    Paste product URL here
-                  </motion.span>
+                  {/* Fixed: Only show placeholder hint when input is empty */}
+                  {!productLink && (
+                    <motion.span 
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-300/70 text-xs hidden md:block"
+                      initial={{ opacity: 0.7 }}
+                      animate={{ opacity: 0.7 }}
+                    >
+                      Paste product URL here
+                    </motion.span>
+                  )}
                 </div>
                 <p className="text-xs text-purple-400 pl-2">Works with Amazon, eBay, Walmart, and more</p>
               </div>
@@ -296,17 +301,20 @@ const Home = () => {
                       min="1"
                       value={priceThreshold}
                       onChange={(e) => setPriceThreshold(e.target.value)}
-                      placeholder="99.99"
-                      className="w-full pl-10 p-3 md:p-4 rounded-lg bg-gray-800/80 border border-purple-700/50 text-white placeholder-purple-400/70 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 text-sm md:text-base"
+                      placeholder="&nbsp;&nbsp;99.99"
+                      className="w-full pl-12 p-6 md:p-4 rounded-lg bg-gray-800/80 border border-purple-700/50 text-white placeholder-purple-400/70 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 text-sm md:text-base"
                     />
-                    <motion.div 
-                      className="absolute -right-2 -top-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: priceThreshold ? 1 : 0 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 10 }}
-                    >
-                      ${priceThreshold}
-                    </motion.div>
+                    {/* Fixed: Only show price badge when price is entered */}
+                    {priceThreshold && (
+                      <motion.div 
+                        className="absolute -right-2 -top-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 10 }}
+                      >
+                        ${priceThreshold}
+                      </motion.div>
+                    )}
                   </div>
                   <p className="text-xs text-purple-400 pl-2">We'll notify you below this price</p>
                 </div>
@@ -327,8 +335,8 @@ const Home = () => {
                       max="12"
                       value={timeoutPeriod}
                       onChange={(e) => setTimeoutPeriod(e.target.value)}
-                      placeholder="3"
-                      className="w-full pl-10 p-3 md:p-4 rounded-lg bg-gray-800/80 border border-purple-700/50 text-white placeholder-purple-400/70 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 text-sm md:text-base"
+                      placeholder="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3"
+                      className="w-full pl-15 p-3 md:p-4 rounded-lg bg-gray-800/80 border border-purple-700/50 text-white placeholder-purple-400/70 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 text-sm md:text-base"
                     />
                   </div>
                   <p className="text-xs text-purple-400 pl-2">Track for up to 12 months</p>
