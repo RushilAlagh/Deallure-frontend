@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 
-// Using the asset paths from your system
-const brandImages = [
-  "/src/assets/Ajio.png",
-  "/src/assets/Amazon.jpg",
-  "/src/assets/Flipkart.jpg",
-  "/src/assets/Nykaa.png",
-  "/src/assets/Nike.jpg",
-];
+// Import images correctly
+import Ajio from '../../assets/Ajio.png';
+import Amazon from '../../assets/Amazon.jpg';
+import Flipkart from '../../assets/Flipkart.jpg';
+import Nykaa from '../../assets/Nykaa.png';
+import Nike from '../../assets/Nike.jpg';
+
+// Using the imported images
+const brandImages = [Ajio, Amazon, Flipkart, Nykaa, Nike];
 
 // Adding corresponding brand URLs
 const brandUrls = {
