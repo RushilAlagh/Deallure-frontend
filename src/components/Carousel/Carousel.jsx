@@ -3,10 +3,10 @@ import { motion } from "framer-motion";
 
 // Import images correctly
 import Ajio from '../../assets/Ajio.png';
-import Amazon from '../../assets/Amazon.jpg';
-import Flipkart from '../../assets/Flipkart.jpg';
-import Nykaa from '../../assets/Nykaa.png';
-import Nike from '../../assets/Nike.jpg';
+import Amazon from '../../assets/amazon.jpg';
+import Flipkart from '../../assets/flipkart.jpg';
+import Nykaa from '../../assets/nykaa.png';
+import Nike from '../../assets/nike.jpg';
 
 // Using the imported images
 const brandImages = [Ajio, Amazon, Flipkart, Nykaa, Nike];
