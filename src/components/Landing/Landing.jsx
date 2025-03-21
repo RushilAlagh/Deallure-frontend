@@ -39,7 +39,7 @@ const Landing = () => {
       <div className="flex flex-col items-center justify-center flex-grow px-4 pt-16 overflow-hidden">
         <div className={`max-w-5xl mx-auto text-center mt-8 md:mt-16 pt-6 md:pt-10 transition-all duration-1000 ${isAnimated ? 'opacity-100' : 'opacity-0 transform translate-y-8'}`}>
           <div className="inline-block mb-4 px-4 py-1 rounded-full bg-purple-900/40 border border-purple-500/30 text-purple-300 text-xs md:text-sm font-medium animate-pulse">
-            Price Drop Alert Technology - Updating again because why not
+            Price Drop Alert Technology - Fixing Redirections
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 leading-tight">
