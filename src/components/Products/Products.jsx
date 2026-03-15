@@ -1,86 +1,77 @@
 import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "/src/components/Navbar/Navbar";
-import { FaEdit, FaTrashAlt, FaInfoCircle, FaShoppingCart, FaChevronDown, FaChevronUp, FaExternalLinkAlt, FaBell, FaCalendarAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
+
+const DOMAIN_COLORS = {
+  amazon:  { bg: "#FF9900", text: "#FFFFFF" },
+  flipkart:{ bg: "#2874F0", text: "#FFFFFF" },
+  ajio:    { bg: "#e53935", text: "#FFFFFF" },
+  nykaa:   { bg: "#FC2778", text: "#FFFFFF" },
+  nike:    { bg: "#111111", text: "#FFFFFF" },
+  default: { bg: "#FF6200", text: "#FFFFFF" },
+};
+
+function getDomainColor(domain) {
+  const d = domain.toLowerCase();
+  return DOMAIN_COLORS[d] || DOMAIN_COLORS.default;
+}
 
 const ProductHistoryPage = () => {
   const [productHistory, setProductHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedProduct, setExpandedProduct] = useState(null);
+  const [filter, setFilter] = useState("all"); // all | monitoring | alerted
 
-  // Fetch product history from backend
   useEffect(() => {
     const fetchProductHistory = async () => {
       setLoading(true);
-      const email = localStorage.getItem("userEmail"); // Get email from local storage
-      if (!email) {
-        console.error("Email not found in local storage");
-        setLoading(false);
-        return;
-      }
-
+      const email = localStorage.getItem("userEmail");
+      if (!email) { setLoading(false); return; }
       try {
-        const response = await fetch(`http://localhost:3000/products/user-products?email=${email}`);
+        const response = await fetch(`https://tc4d4uk8sf.execute-api.ap-south-1.amazonaws.com/dev/products/user-products?email=${email}`);
         const data = await response.json();
-
-        if (response.ok) {
-          setProductHistory(data); // Set the product data from API response
-        } else {
-          console.error("Error fetching product data", data.error);
-        }
+        if (response.ok) setProductHistory(data);
       } catch (error) {
-        console.error("Error fetching product data", error);
+        console.error("Error fetching products", error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProductHistory();
   }, []);
 
-  // Extract domain name from URL for display purposes
-  const extractDomainName = (url) => {
+  const extractDomain = (url) => {
     try {
-      const domain = new URL(url).hostname.replace('www.', '');
-      return domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1);
-    } catch (error) {
-      return "Product";
-    }
+      const d = new URL(url).hostname.replace("www.", "");
+      return d.split(".")[0].charAt(0).toUpperCase() + d.split(".")[0].slice(1);
+    } catch { return "Product"; }
   };
 
-  // Handle product deletion
   const handleDelete = async (id) => {
-    // Here you would typically make an API call to delete the product
-    // For now, we're just updating the UI
-    const updatedHistory = productHistory.filter((product) => product.Product_ID !== id);
-    setProductHistory(updatedHistory);
-    if (expandedProduct === id) {
-      setExpandedProduct(null);
-    }
+    setProductHistory(productHistory.filter((p) => p.Product_ID !== id));
+    if (expandedProduct === id) setExpandedProduct(null);
   };
 
-  // Toggle expanded view for a product
-  const toggleProductDetails = (id) => {
-    setExpandedProduct(expandedProduct === id ? null : id);
-  };
+  const filtered = productHistory.filter(p => {
+    if (filter === "monitoring") return !p.NotificationSent;
+    if (filter === "alerted") return p.NotificationSent;
+    return true;
+  });
+
+  const monitoringCount = productHistory.filter(p => !p.NotificationSent).length;
+  const alertedCount = productHistory.filter(p => p.NotificationSent).length;
 
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+      <div className="min-h-screen bg-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
         <Navbar />
-        <div className="flex flex-grow justify-center items-center">
-          <div className="animate-pulse text-center">
-            <div className="h-8 w-64 bg-purple-500/30 rounded mx-auto mb-8"></div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-gray-800/50 rounded-lg p-8 w-full max-w-md">
-                  <div className="h-6 bg-gray-700 rounded w-3/4 mx-auto mb-4"></div>
-                  <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto mb-6"></div>
-                  <div className="h-24 bg-gray-700 rounded mb-6"></div>
-                  <div className="h-10 bg-gray-700 rounded w-full mb-4"></div>
-                </div>
-              ))}
-            </div>
+        <div className="flex items-center justify-center min-h-[70vh]">
+          <div className="flex gap-2">
+            {["#FF6200","#FFD60A","#0057FF","#22C55E"].map((c, i) => (
+              <span key={i} className="w-3 h-3 rounded-full animate-bounce"
+                style={{ background: c, animationDelay: `${i * 120}ms` }} />
+            ))}
           </div>
         </div>
       </div>
@@ -88,217 +79,304 @@ const ProductHistoryPage = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-      <Navbar /> {/* Navbar stays at the top */}
+    <div className="min-h-screen bg-white text-[#0A0A0A]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+      <Navbar />
 
-      {/* Product Price History Heading */}
-      <div className="w-full py-8 md:py-12 px-4 mt-8">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-6">
-            My Price Trackers
-          </h2>
-          <p className="text-center text-gray-300 max-w-2xl mx-auto">
-            Keep track of all your price watches and get notified when prices drop below your threshold
-          </p>
+      {/* ── Dark Hero Header ── */}
+      <div className="relative bg-[#0A0A0A] overflow-hidden pt-20">
+        {/* orange dot grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgba(255,98,0,0.10) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+        {/* orange glow */}
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full opacity-10 blur-[100px] pointer-events-none" style={{ background: "#FF6200" }} />
+
+        <div className="relative z-10 max-w-5xl mx-auto px-6 py-12 pb-16">
+          <motion.div
+            className="flex flex-col md:flex-row md:items-end md:justify-between gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div>
+              <div className="text-xs font-bold text-orange-500 uppercase tracking-[0.2em] mb-3">
+                Dashboard
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+                My Trackers
+              </h1>
+              <p className="text-[#888] mt-2 font-medium text-base">
+                {productHistory.length > 0
+                  ? `${productHistory.length} product${productHistory.length > 1 ? "s" : ""} under surveillance`
+                  : "No products tracked yet — start by adding one."}
+              </p>
+            </div>
+
+            {/* Stats chips */}
+            {productHistory.length > 0 && (
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="px-5 py-3 rounded-xl bg-white/[0.06] border border-white/10 text-center min-w-[90px]">
+                  <div className="text-2xl font-bold text-white">{monitoringCount}</div>
+                  <div className="text-[10px] font-bold text-[#888] uppercase tracking-wider mt-0.5">Monitoring</div>
+                </div>
+                <div className="px-5 py-3 rounded-xl bg-green-500/10 border border-green-500/20 text-center min-w-[90px]">
+                  <div className="text-2xl font-bold text-green-400">{alertedCount}</div>
+                  <div className="text-[10px] font-bold text-green-600 uppercase tracking-wider mt-0.5">Alerted</div>
+                </div>
+                <Link
+                  to="/home"
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-[#0A0A0A] text-sm transition-all duration-300 hover:-translate-y-0.5 hover:scale-105"
+                  style={{ background: "#FF6200" }}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  Add New
+                </Link>
+              </div>
+            )}
+          </motion.div>
+        </div>
+
+        {/* bottom divider — scalloped white */}
+        <div className="relative z-20">
+          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+            <path d="M0 40 C360 0 1080 0 1440 40 L1440 40 L0 40Z" fill="#FFFFFF"/>
+          </svg>
         </div>
       </div>
 
-      {/* Product History Section */}
-      <div className="flex flex-grow justify-center items-start py-6 px-4">
-        <div className="max-w-7xl w-full">
-          {productHistory.length === 0 ? (
-            <div className="text-center p-12 bg-gray-800/30 rounded-lg border border-purple-500/20">
-              <p className="text-xl text-gray-400">No products tracked yet</p>
-              <Link to="/add-product" className="mt-4 inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-lg">
-                Add Your First Product
-              </Link>
+      {/* ── Content ── */}
+      <div className="max-w-5xl mx-auto px-6 py-10 pb-24">
+
+        {/* Filter tabs */}
+        {productHistory.length > 0 && (
+          <motion.div
+            className="flex items-center gap-2 mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            {[["all", "All"], ["monitoring", "Monitoring"], ["alerted", "Alerted"]].map(([val, label]) => (
+              <button
+                key={val}
+                onClick={() => setFilter(val)}
+                className="px-5 py-2 rounded-full text-sm font-bold transition-all duration-200"
+                style={filter === val
+                  ? { background: "#FF6200", color: "#fff", boxShadow: "0 4px 14px rgba(255,98,0,0.3)" }
+                  : { background: "#F5F5F5", color: "#666" }
+                }
+              >
+                {label}
+                {val !== "all" && (
+                  <span className="ml-1.5 opacity-70">
+                    {val === "monitoring" ? monitoringCount : alertedCount}
+                  </span>
+                )}
+              </button>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Empty state */}
+        {productHistory.length === 0 ? (
+          <motion.div
+            className="text-center py-28 border-2 border-dashed border-[#0A0A0A]/10 rounded-3xl"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
+          >
+            <div
+              className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6"
+              style={{ background: "#FF6200" }}
+            >
+              <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-              {productHistory.map((product, index) => (
-                <div
-                  key={product.Product_ID}
-                  className={`group relative bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur rounded-xl border border-purple-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 overflow-hidden ${
-                    expandedProduct === product.Product_ID ? "col-span-1 md:col-span-2 xl:col-span-3" : ""
-                  }`}
-                >
-                  {/* Card Header - Always visible */}
-                  <div className="p-6 pb-4">
-                    <div className="flex justify-between items-start mb-4">
-                      {/* Left side with product indicator */}
-                      <div>
-                        <span className="text-sm font-medium px-2 py-1 rounded-full bg-purple-500/20 text-purple-300">
-                          Tracker #{index + 1}
-                        </span>
-                        <h3 className="text-xl font-medium text-white mt-3">
-                          {extractDomainName(product.Product_URL)} Product
-                        </h3>
-                      </div>
-                      
-                      {/* Right side with action buttons */}
-                      <div className="flex gap-2">
-                        <Link
-                          to={`/product/edit/${product.Product_ID}`}
-                          className="p-1.5 rounded-full bg-gray-800/80 text-purple-300 hover:bg-purple-600/30"
-                        >
-                          <FaEdit size={14} />
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(product.Product_ID)}
-                          className="p-1.5 rounded-full bg-gray-800/80 text-red-400 hover:bg-red-600/30"
-                        >
-                          <FaTrashAlt size={14} />
-                        </button>
-                      </div>
-                    </div>
+            <h3 className="text-2xl font-bold text-[#0A0A0A] mb-2">Nothing here yet</h3>
+            <p className="text-[#888] mb-8 font-medium">Add your first product to start tracking prices.</p>
+            <Link
+              to="/home"
+              className="inline-block px-10 py-4 font-bold text-white rounded-xl transition-all duration-300 hover:-translate-y-1"
+              style={{ background: "#FF6200", boxShadow: "0 6px 24px rgba(255,98,0,0.35)" }}
+            >
+              Add a Product →
+            </Link>
+          </motion.div>
+        ) : (
+          <AnimatePresence>
+            {filtered.length === 0 ? (
+              <motion.div
+                key="no-filter"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="text-center py-16 text-[#999] font-medium"
+              >
+                No {filter} products.
+              </motion.div>
+            ) : (
+              <motion.div className="space-y-4">
+                {filtered.map((product, index) => {
+                  const domain = extractDomain(product.Product_URL);
+                  const color = getDomainColor(domain);
+                  const isExpanded = expandedProduct === product.Product_ID;
 
-                    {/* Threshold visualization */}
-                    <div className="mt-4 mb-3">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-400">Your Price Alert</span>
-                        <span className="text-purple-300 font-bold">₹{product.Threshold_Value}</span>
-                      </div>
-                      <div className="w-full bg-gray-700/30 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full" 
-                          style={{ width: '70%' }} // This could be dynamic based on current price vs threshold
-                        ></div>
-                      </div>
-                    </div>
-
-                    {/* Status indicator */}
-                    <div className="flex justify-between items-center mb-2">
-                      <span className={`text-sm px-3 py-1 rounded-full ${
-                        product.NotificationSent 
-                          ? "bg-green-500/20 text-green-300" 
-                          : "bg-yellow-500/20 text-yellow-300"
-                      }`}>
-                        {product.NotificationSent ? "Price Drop Alert Sent" : "Monitoring Price"}
-                      </span>
-                      
-                      {/* Expand/Collapse toggle */}
-                      <button 
-                        onClick={() => toggleProductDetails(product.Product_ID)}
-                        className="flex items-center gap-1 text-sm text-purple-300 hover:text-purple-400"
-                      >
-                        {expandedProduct === product.Product_ID ? (
-                          <>Less Details <FaChevronUp size={12} /></>
-                        ) : (
-                          <>More Details <FaChevronDown size={12} /></>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Main action buttons - Always visible */}
-                  <div className="px-6 pb-6 flex flex-col space-y-3">
-                    <a
-                      href={product.Product_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg transition-all duration-300"
+                  return (
+                    <motion.div
+                      key={product.Product_ID}
+                      layout
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                      transition={{ duration: 0.35, delay: index * 0.04 }}
+                      className="group border border-[#0A0A0A]/08 rounded-2xl overflow-hidden hover:border-[#0A0A0A]/20 hover:shadow-xl transition-all duration-300"
+                      style={{ background: "#FFFFFF" }}
                     >
-                      <FaShoppingCart size={16} />
-                      <span>Shop Now</span>
-                    </a>
-                  </div>
+                      {/* Card top — orange left stripe */}
+                      <div
+                        className="w-full h-1 transition-all duration-300"
+                        style={{ background: product.NotificationSent ? "#22C55E" : "#FF6200" }}
+                      />
 
-                  {/* Expanded details section */}
-                  {expandedProduct === product.Product_ID && (
-                    <div className="mt-4 border-t border-purple-500/20 pt-6 px-6 pb-6 bg-gray-900/40">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* Product Information */}
-                        <div className="space-y-6">
-                          <h4 className="text-lg font-medium text-purple-300 flex items-center gap-2">
-                            <FaInfoCircle /> Product Information
-                          </h4>
-                          
-                          {/* URL Display */}
-                          <div>
-                            <h5 className="text-sm uppercase text-gray-400 mb-2">Product URL</h5>
-                            <div className="flex items-center bg-gray-900/50 p-3 rounded-lg border border-gray-700 overflow-x-auto">
-                              <a 
-                                href={product.Product_URL} 
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-purple-300 hover:text-purple-400 flex items-center text-sm"
+                      <div className="p-6">
+                        <div className="flex items-start justify-between gap-4">
+                          {/* Domain badge + info */}
+                          <div className="flex items-start gap-4 flex-1 min-w-0">
+                            {/* Domain letter badge */}
+                            <div
+                              className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl flex-shrink-0 group-hover:scale-105 transition-transform duration-300"
+                              style={{ background: color.bg, color: color.text }}
+                            >
+                              {domain.charAt(0)}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2 mb-1">
+                                <h3 className="text-lg font-bold text-[#0A0A0A]">{domain}</h3>
+                                {/* Status badge */}
+                                {product.NotificationSent ? (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold" style={{ background: "#DCFCE7", color: "#16A34A" }}>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    Alert Sent
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold" style={{ background: "#FFF3E0", color: "#FF6200" }}>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                                    Live
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-[#999] truncate font-medium">{product.Product_URL}</p>
+
+                              {/* Metrics row */}
+                              <div className="flex flex-wrap items-center gap-4 mt-4">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-[#bbb] uppercase tracking-widest">Target</span>
+                                  <span className="text-base font-bold text-[#0A0A0A]">₹{product.Threshold_Value}</span>
+                                </div>
+                                <div className="w-px h-4 bg-[#eee]" />
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-[#bbb] uppercase tracking-widest">Store</span>
+                                  <span className="text-sm font-bold" style={{ color: color.bg }}>{domain}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+                            <a
+                              href={product.Product_URL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-4 py-2 text-sm font-bold text-white rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+                              style={{ background: "#FF6200" }}
+                            >
+                              View →
+                            </a>
+                            <button
+                              onClick={() => setExpandedProduct(isExpanded ? null : product.Product_ID)}
+                              className="p-2 rounded-lg text-[#bbb] hover:text-[#0A0A0A] hover:bg-[#F5F5F5] transition-all"
+                            >
+                              <svg
+                                className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
                               >
-                                {product.Product_URL}
-                                <FaExternalLinkAlt size={12} className="ml-2" />
-                              </a>
-                            </div>
-                          </div>
-                          
-                          {/* Created At */}
-                          <div>
-                            <h5 className="text-sm uppercase text-gray-400 mb-2">Added On</h5>
-                            <div className="flex items-center gap-2 text-white">
-                              <FaCalendarAlt className="text-purple-400" />
-                              <span>{new Date(product.Created_At).toLocaleString()}</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Notification Details */}
-                        <div className="space-y-6">
-                          <h4 className="text-lg font-medium text-purple-300 flex items-center gap-2">
-                            <FaBell /> Price Alert Settings
-                          </h4>
-                          
-                          {/* Threshold Value */}
-                          <div>
-                            <h5 className="text-sm uppercase text-gray-400 mb-2">Price Threshold</h5>
-                            <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-500/30">
-                              <div className="flex items-baseline">
-                                <span className="text-3xl font-bold text-white">₹{product.Threshold_Value}</span>
-                                <span className="ml-2 text-gray-400 text-sm">target price</span>
-                              </div>
-                              <p className="text-sm text-gray-400 mt-2">
-                                You'll receive an alert when the product price falls below this value
-                              </p>
-                            </div>
-                          </div>
-                          
-                          {/* Notification Status */}
-                          <div>
-                            <h5 className="text-sm uppercase text-gray-400 mb-2">Alert Status</h5>
-                            <div className={`p-4 rounded-lg border ${
-                              product.NotificationSent 
-                                ? "border-green-500/30 bg-green-900/10" 
-                                : "border-yellow-500/30 bg-yellow-900/10"
-                            }`}>
-                              <div className="flex items-center">
-                                <div className={`mr-3 w-3 h-3 rounded-full ${
-                                  product.NotificationSent 
-                                    ? "bg-green-500" 
-                                    : "bg-yellow-500"
-                                }`}></div>
-                                <span className={
-                                  product.NotificationSent 
-                                    ? "text-green-300" 
-                                    : "text-yellow-300"
-                                }>
-                                  {product.NotificationSent 
-                                    ? "Price drop alert has been sent" 
-                                    : "Actively monitoring price changes"}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-400 mt-2">
-                                {product.NotificationSent 
-                                  ? "You've already been notified about a price drop for this product" 
-                                  : "We'll notify you when the price drops below your threshold"}
-                              </p>
-                            </div>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => handleDelete(product.Product_ID)}
+                              className="p-2 rounded-lg text-[#bbb] hover:text-red-500 hover:bg-red-50 transition-all"
+                              title="Remove tracker"
+                            >
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+
+                      {/* Expanded panel */}
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.28 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="border-t border-[#0A0A0A]/06 bg-[#FAFAFA] px-6 py-6">
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                {/* Target price */}
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-[10px] font-bold text-[#bbb] uppercase tracking-widest">Target Price</span>
+                                  <span className="text-2xl font-bold text-[#0A0A0A]">₹{product.Threshold_Value}</span>
+                                </div>
+                                {/* Date */}
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-[10px] font-bold text-[#bbb] uppercase tracking-widest">Added On</span>
+                                  <span className="text-base font-bold text-[#444]">
+                                    {new Date(product.Created_At).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                                  </span>
+                                </div>
+                                {/* Status */}
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-[10px] font-bold text-[#bbb] uppercase tracking-widest">Status</span>
+                                  <span className="text-base font-bold" style={{ color: product.NotificationSent ? "#22C55E" : "#FF6200" }}>
+                                    {product.NotificationSent ? "✓ Alert Delivered" : "⚡ Tracking Active"}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Full URL */}
+                              <div className="mt-5 pt-5 border-t border-[#0A0A0A]/06">
+                                <p className="text-[10px] font-bold text-[#bbb] uppercase tracking-widest mb-1">Product URL</p>
+                                <a
+                                  href={product.Product_URL}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm font-medium break-all hover:underline"
+                                  style={{ color: "#FF6200" }}
+                                >
+                                  {product.Product_URL}
+                                </a>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );
