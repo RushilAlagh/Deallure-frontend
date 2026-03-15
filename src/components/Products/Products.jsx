@@ -29,7 +29,7 @@ const ProductHistoryPage = () => {
       const email = localStorage.getItem("userEmail");
       if (!email) { setLoading(false); return; }
       try {
-        const response = await fetch(`http://localhost:3000/products/user-products?email=${email}`);
+        const response = await fetch(`https://tc4d4uk8sf.execute-api.ap-south-1.amazonaws.com/dev/products/user-products?email=${email}`);
         const data = await response.json();
         if (response.ok) setProductHistory(data);
       } catch (error) {

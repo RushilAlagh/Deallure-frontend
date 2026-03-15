@@ -16,7 +16,8 @@ function Login() {
     setError("");
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/auth/login", {
+      // UPDATED TO LIVE AWS URL
+      const response = await fetch("https://tc4d4uk8sf.execute-api.ap-south-1.amazonaws.com/dev/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

@@ -49,7 +49,7 @@ const Signup = () => {
     if (!validateForm()) return;
     setLoading(true); setError(""); setMessage("");
     try {
-      const response = await fetch("http://localhost:3000/auth/register", {
+      const response = await fetch("https://tc4d4uk8sf.execute-api.ap-south-1.amazonaws.com/dev/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: formData.name, email: formData.email, password: formData.password }),

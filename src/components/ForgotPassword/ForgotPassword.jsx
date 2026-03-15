@@ -20,7 +20,8 @@ const ForgotPassword = () => {
     if (!email) { setError("Please enter your email."); return; }
     setError(null); setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/auth/forgot-password", {
+      // UPDATED TO LIVE AWS URL
+      const response = await fetch("https://tc4d4uk8sf.execute-api.ap-south-1.amazonaws.com/dev/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -41,7 +42,8 @@ const ForgotPassword = () => {
     if (!otp || !newPassword) { setError("Please enter the OTP and your new password."); return; }
     setError(null); setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/auth/reset-password", {
+      // UPDATED TO LIVE AWS URL
+      const response = await fetch("https://tc4d4uk8sf.execute-api.ap-south-1.amazonaws.com/dev/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp, newPassword }),

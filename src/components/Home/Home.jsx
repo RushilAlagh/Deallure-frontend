@@ -24,7 +24,8 @@ const Home = () => {
       return;
     }
     try {
-      const response = await fetch("http://localhost:3000/products/track", {
+      // UPDATED TO LIVE AWS URL
+      const response = await fetch("https://tc4d4uk8sf.execute-api.ap-south-1.amazonaws.com/dev/products/track", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: userEmail, productURL: productLink, threshold: priceThreshold, timeout: timeoutPeriod }),
