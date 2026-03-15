@@ -3,7 +3,7 @@ name: Deploy Frontend to S3 and CloudFront
 on:
   push:
     branches:
-      - main # Change this if your default branch is 'master'
+      - tracklet-main # Change this if your default branch is 'master'
 
 jobs:
   deploy:
