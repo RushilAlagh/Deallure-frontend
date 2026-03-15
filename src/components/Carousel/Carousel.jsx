@@ -1,16 +1,22 @@
 import React from "react";
 import { motion } from "framer-motion";
 
+// 1. Import all images properly
+import Ajio from "../../assets/Ajio.png";
+import Amazon from "../../assets/amazon.jpg";
+import Flipkart from "../../assets/flipkart.jpg";
+import Nykaa from "../../assets/nykaa.png";
+import Nike from "../../assets/nike.jpg";
+
 const brandImages = [
-  { name: "Ajio", src: "/src/assets/Ajio.png", url: "https://www.ajio.com" },
-  { name: "Amazon", src: "/src/assets/Amazon.jpg", url: "https://www.amazon.com" },
-  { name: "Flipkart", src: "/src/assets/Flipkart.jpg", url: "https://www.flipkart.com" },
-  { name: "Nykaa", src: "/src/assets/Nykaa.png", url: "https://www.nykaa.com" },
-  { name: "Nike", src: "/src/assets/Nike.jpg", url: "https://www.nike.com" },
+  { name: "Ajio", src: Ajio, url: "https://www.ajio.com" },
+  { name: "Amazon", src: Amazon, url: "https://www.amazon.in" },
+  { name: "Flipkart", src: Flipkart, url: "https://www.flipkart.com" },
+  { name: "Nykaa", src: Nykaa, url: "https://www.nykaa.com" },
+  { name: "Nike", src: Nike, url: "https://www.nike.com" },
 ];
 
 export const InfiniteCarousel = () => {
-  // We duplicate the items a few times so the marquee scrolls seamlessly
   const duplicatedLogos = [...brandImages, ...brandImages, ...brandImages, ...brandImages];
 
   return (
@@ -22,41 +28,40 @@ export const InfiniteCarousel = () => {
       </div>
 
       <div className="relative flex overflow-hidden">
-        {/* Left and Right faded edges for a sleek look */}
         <div className="absolute left-0 top-0 bottom-0 w-32 sm:w-48 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none"></div>
         <div className="absolute right-0 top-0 bottom-0 w-32 sm:w-48 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none"></div>
 
         <motion.div
-          className="flex flex-nowrap shrink-0 gap-16 py-4 items-center"
-          animate={{ x: "-50%" }}
-          transition={{
-            duration: 25,
-            ease: "linear",
-            repeat: Infinity,
-            repeatType: "loop"
-          }}
-        >
-          {duplicatedLogos.map((brand, i) => (
-            <motion.a
-              key={i}
-              href={brand.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative flex items-center justify-center shrink-0 w-32 md:w-44 h-20 md:h-24 grayscale hover:grayscale-0 opacity-50 hover:opacity-100 transition-all duration-500 ease-out bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-100"
-              whileHover={{ scale: 1.05, y: -5 }}
-            >
-              <img
-                src={brand.src}
-                alt={brand.name}
-                className="max-w-[70%] max-h-[70%] object-contain filter drop-shadow-sm group-hover:drop-shadow-md transition-all duration-300"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.parentElement.innerHTML = `<span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500">${brand.name}</span>`;
-                }}
-              />
-            </motion.a>
-          ))}
-        </motion.div>
+  className="flex flex-nowrap shrink-0 gap-16 py-4 items-center"
+  animate={{ 
+    // We animate from 0 to -50% of the width of the duplicated items
+    x: [0, "-50%"] 
+  }}
+  transition={{
+    duration: 30, // Increased duration for a smoother, professional scroll
+    ease: "linear",
+    repeat: Infinity,
+  }}
+  // This ensures the animation doesn't pause when the window loses focus
+  style={{ display: "flex", width: "max-content" }} 
+>
+  {duplicatedLogos.map((brand, i) => (
+    <motion.a
+      key={i}
+      href={brand.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative flex items-center justify-center shrink-0 w-32 md:w-44 h-20 md:h-24 grayscale hover:grayscale-0 opacity-50 hover:opacity-100 transition-all duration-500 ease-out bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-100"
+      whileHover={{ scale: 1.05, y: -5 }}
+    >
+      <img
+        src={brand.src}
+        alt={brand.name}
+        className="max-w-[70%] max-h-[70%] object-contain filter drop-shadow-sm group-hover:drop-shadow-md transition-all duration-300"
+      />
+    </motion.a>
+  ))}
+</motion.div>
       </div>
     </section>
   );
