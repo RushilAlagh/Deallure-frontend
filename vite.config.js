@@ -46,11 +46,20 @@ export default defineConfig({
     // Code-split by route for smaller initial bundles
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          motion: ['framer-motion'],
-        },
+        // UPDATED: manualChunks must be a function in Vite 8
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('framer-motion')) {
+              return 'motion';
+            }
+            if (id.includes('react-router-dom')) {
+              return 'router';
+            }
+            if (id.includes('react/') || id.includes('react-dom/')) {
+              return 'vendor';
+            }
+          }
+        }
       },
     },
     // Faster builds in dev
@@ -62,4 +71,3 @@ export default defineConfig({
     devSourcemap: false,
   },
 })
-
