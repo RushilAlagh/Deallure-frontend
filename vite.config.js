@@ -6,13 +6,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [
     react({
-      // Use SWC-based fast refresh (already default with @vitejs/plugin-react)
       fastRefresh: true,
     }),
     tailwindcss(),
   ],
 
-  // Pre-bundle all heavy dependencies so they don't need to be processed on every cold start
   optimizeDeps: {
     include: [
       'react',
@@ -20,18 +18,14 @@ export default defineConfig({
       'react-router-dom',
       'framer-motion',
     ],
-    // Force fresh prebundle on config change only
     force: false,
   },
 
   server: {
-    // Use faster port (avoid conflicts)
     port: 5173,
-    // Enable file system caching
     fs: {
       strict: false,
     },
-    // Warm up frequently used files on startup for instant HMR
     warmup: {
       clientFiles: [
         './src/App.jsx',
@@ -43,10 +37,8 @@ export default defineConfig({
   },
 
   build: {
-    // Code-split by route for smaller initial bundles
     rollupOptions: {
       output: {
-        // UPDATED: manualChunks must be a function in Vite 8
         manualChunks(id) {
           if (id.includes('node_modules')) {
             if (id.includes('framer-motion')) {
@@ -62,11 +54,9 @@ export default defineConfig({
         }
       },
     },
-    // Faster builds in dev
-    minify: 'esbuild',
+    // REMOVED the minify: 'esbuild' line entirely!
   },
 
-  // Faster CSS processing
   css: {
     devSourcemap: false,
   },
